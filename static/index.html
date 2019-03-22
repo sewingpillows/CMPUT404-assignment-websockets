@@ -298,15 +298,10 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             }
         }
     };
-    if (objects != null) {
-        xhr.open('POST', url);
-    }
-    else {
     xhr.open('GET', url);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.setRequestHeader('Accept', 'application/json');
     xhr.send(JSON.stringify(objects));
-}
 }
 
 function wsSetup() {
