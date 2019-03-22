@@ -75,11 +75,17 @@ class Client:
         return self.queue.get()
 
 
-myWorld = World()        
+myWorld = World() 
 
+##create the client lists
+clients = list() ##https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py ##      
+
+##this will update the world when triggered
 def set_listener( entity, data ):
-    ''' do something with the update ! '''
+    for listener in clients:
+        myWorld.update(entity, listener, data[listener])
 
+##add a listener to the world
 myWorld.add_set_listener( set_listener )
         
 @app.route('/')
@@ -94,7 +100,8 @@ def read_ws(ws,client):
             print ("WS RECV: ", msg)
             if (msg is not None):
                 packet = json.loads(msg)
-                json.dumps(packet) 
+                for client in clients:
+                    client.put(json.dumps(packet))
             else:
                 break
     except:
@@ -102,10 +109,11 @@ def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
 
 
+## https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py ##
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
     client = Client()
-    myWorld.add_set_listener(client)
+    clients.append(client)
     g = gevent.spawn( read_ws, ws, client)    
     try:
         while True:
@@ -115,7 +123,7 @@ def subscribe_socket(ws):
     except Exception as e:# WebSocketError as e:
         print ("WS Error ", e)
     finally:
-        myWorld.listeners.remove(client)
+        clients.remove(client)
         gevent.kill(g)
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
@@ -134,26 +142,46 @@ def flask_post_json():
     else:
         return json.loads(request.form.keys()[0])
 
+
+
+
+##pulled from Assignment 4
+## https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/server.py
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
-    '''update the entities via this interface'''
-    return None
+    data = flask_post_json()
+    myWorld.set(entity,data)
+    return json.dumps(myWorld.get(entity)), 200
 
+
+##pulled from Assignment 4
+## https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/server.py
 @app.route("/world", methods=['POST','GET'])    
 def world():
+    if (request.method=='GET'):
+        return json.dumps(myWorld.world()), 200
+    if (request.method == 'POST'):
+        data = flask_post_json()
+        for entity,vals in data.items():
+            app.logger.info(entity, vals) 
+            for key, val in vals.items():
+                myWorld.update(entity, key, val)
+    return json.dumps(myWorld.world()), 200
 
-    '''you should probably return the world here'''
-    return None
 
+##pulled from Assignment 4
+## https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/server.py
 @app.route("/entity/<entity>")    
 def get_entity(entity):
-    '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    return json.dumps(myWorld.get(entity)), 200
 
 
+##pulled from Assignment 4
+## https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/server.py
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     myWorld.clear()
+    return json.dumps(myWorld.world()), 200
 
 
 if __name__ == "__main__":
