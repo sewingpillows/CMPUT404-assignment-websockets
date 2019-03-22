@@ -193,6 +193,7 @@ def get_entity(entity):
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     myWorld.clear()
+    send_all_json(json.dumps(myWorld.world()))
     return json.dumps(myWorld.world()), 200
 
 
