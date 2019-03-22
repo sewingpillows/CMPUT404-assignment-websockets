@@ -61,7 +61,9 @@ class World:
     def world(self):
         return self.space
 
-##create clients
+myWorld = World() 
+
+## create clients section
 ## sourced from class notes
 ##  https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py 
 class Client:
@@ -74,34 +76,43 @@ class Client:
     def get(self):
         return self.queue.get()
 
+def send_all(msg):
+    for client in clients:
+        client.put( msg )
 
-myWorld = World() 
+def send_all_json(obj):
+    send_all( json.dumps(obj) )
 
-##create the client lists
-clients = list() ##https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py ##      
+clients = list()   
 
-##this will update the world when triggered
+## end of create clients section
+
 def set_listener( entity, data ):
-    for listener in clients:
-        myWorld.update(entity, listener, data[listener])
+    pass
 
 ##add a listener to the world
-myWorld.add_set_listener( set_listener )
+myWorld.add_set_listener( set_listener)
         
 @app.route('/')
 def hello():
      return flask.redirect("/static/index.html")
 
-## https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py ##
+
+## sourced from class notes
+##  https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py 
 def read_ws(ws,client):
+    print ("read message")
     try:
         while True:
             msg = ws.receive()
             print ("WS RECV: ", msg)
             if (msg is not None):
                 packet = json.loads(msg)
-                for client in clients:
-                    client.put(json.dumps(packet))
+                print (type(packet))
+                for entity, details in packet.items():
+                    print (entity, details)
+                    myWorld.set(entity, details)
+                send_all_json(packet)
             else:
                 break
     except:
@@ -109,7 +120,8 @@ def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
 
 
-## https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py ##
+## sourced from class notes
+##  https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py 
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
     client = Client()
