@@ -163,6 +163,7 @@ def flask_post_json():
 def update(entity):
     data = flask_post_json()
     myWorld.set(entity,data)
+    send_all_json(json.dumps(myWorld.world()))
     return json.dumps(myWorld.get(entity)), 200
 
 
@@ -178,6 +179,7 @@ def world():
             app.logger.info(entity, vals) 
             for key, val in vals.items():
                 myWorld.update(entity, key, val)
+    send_all_json(json.dumps(myWorld.world()))
     return json.dumps(myWorld.world()), 200
 
 
@@ -185,6 +187,7 @@ def world():
 ## https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/server.py
 @app.route("/entity/<entity>")    
 def get_entity(entity):
+    send_all_json(json.dumps(myWorld.world()))
     return json.dumps(myWorld.get(entity)), 200
 
 
