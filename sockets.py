@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright (c) 2013-2014 Abram Hindle
+# Copyright (c) 2013-2019 Allison Boukall, based on code provided 
+# by Abram Hindle
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -163,7 +164,7 @@ def flask_post_json():
 def update(entity):
     data = flask_post_json()
     myWorld.set(entity,data)
-    send_all_json(json.dumps(myWorld.world()))
+    send_all_json(myWorld.world())
     return json.dumps(myWorld.get(entity)), 200
 
 
@@ -172,6 +173,7 @@ def update(entity):
 @app.route("/world", methods=['POST','GET'])    
 def world():
     if (request.method=='GET'):
+        send_all_json(myWorld.world())
         return json.dumps(myWorld.world()), 200
     if (request.method == 'POST'):
         data = flask_post_json()
@@ -179,7 +181,7 @@ def world():
             app.logger.info(entity, vals) 
             for key, val in vals.items():
                 myWorld.update(entity, key, val)
-    send_all_json(json.dumps(myWorld.world()))
+    send_all_json(myWorld.world())
     return json.dumps(myWorld.world()), 200
 
 
@@ -187,7 +189,7 @@ def world():
 ## https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/server.py
 @app.route("/entity/<entity>")    
 def get_entity(entity):
-    send_all_json(json.dumps(myWorld.world()))
+    send_all_json(myWorld.world())
     return json.dumps(myWorld.get(entity)), 200
 
 
@@ -196,7 +198,7 @@ def get_entity(entity):
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     myWorld.clear()
-    send_all_json(json.dumps(myWorld.world()))
+    send_all_json(myWorld.world())
     return json.dumps(myWorld.world()), 200
 
 
