@@ -7,6 +7,13 @@ See requirements.org (plain-text) for a description of the project.
 
 Make a shared state Websockets drawing program
 
+
+
+Create a glowing orbs!<br>
+
+![My image](https://raw.githubusercontent.com/sewingpillows/CMPUT404-assignment-websockets/master/color_orbs.png)
+
+
 Prereqs
 =======
 
@@ -15,11 +22,6 @@ pip install flask-sockets
 pip install ws4py
 
 pip install gunicorn
-
-
-Create a glowing orbs!<br>
-
-![My image](https://raw.githubusercontent.com/sewingpillows/CMPUT404-assignment-websockets/master/color_orbs.png)
 
 Contributors / Licensing
 ========================
