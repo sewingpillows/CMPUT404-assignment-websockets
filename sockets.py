@@ -17,6 +17,7 @@ import flask
 from flask import Flask, request
 from flask_sockets import Sockets
 import gevent
+import logging
 from gevent import queue
 import time
 import json
@@ -108,9 +109,8 @@ def read_ws(ws,client):
             print ("WS RECV: ", msg)
             if (msg is not None):
                 packet = json.loads(msg)
-                print (type(packet))
                 for entity, details in packet.items():
-                    print (entity, details)
+                    ##xprint (entity, details)
                     myWorld.set(entity, details)
                 send_all_json(packet)
             else:

@@ -22,7 +22,7 @@
     "/>
     <script src="json2.js"></script>
   </head> 
-  <body bgcolor="white" height="100%" width="100%"> 
+  <body height="100%" width="100%"> 
     <div id="debug"></div>
     <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
 
@@ -324,9 +324,7 @@ function wsSetup() {
             debug("WebSocket Recv:" + msg.data);
             var message = JSON.parse(msg.data);
             world = message
-            drawNextFrame()
-
-            //XXX: TODO What are you going to do here?            
+            drawNextFrame()           
         } catch (e) {
             alert("socket on message: " + e);
         }
