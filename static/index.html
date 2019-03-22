@@ -35,12 +35,15 @@ var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
 var wscounter = 0;
 var socket;
+var debug_flag = 0;
+debug("Test");
 
 function debug(str) {
+    if (debug_flag ==1) {
     var debugDiv = document.getElementById('debug');
     debugDiv.innerHTML = "" + str;
+    }
 }
-debug("Test");
 
 world = {};
 
@@ -51,11 +54,15 @@ function drawCircle(context,entity) {
         lineWidth = 3;
         var x = entity["x"];
         var y = entity["y"];
-        //moveTo(x,y);
+        context.shadowBlur = 50;
+        context.shadowColor = "white";
         fillStyle = entity["colour"];
         strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
-        stroke();                                
+        arc(x, y, (entity["radius"])?entity["radius"]:20, 0, 2.0 * Math.PI, false);  
+        stroke();
+        context.fill();
+        context.filter = 'blur(5px)';
+        context.restore();                              
     }
 }
 
@@ -64,7 +71,7 @@ function prepEntity(entity) {
         entity["colour"] = "#FF0000";
     }
     if (!entity["radius"]) {
-        entity["radius"] = 50;
+        entity["radius"] = 20;
     }
     return entity;
 }
@@ -78,6 +85,25 @@ function clearFrame() {
 
 }
 
+function pick_random_color(){
+    var orange = '#f47142';
+    var yellow = '#f4cd41';
+    var pink = '#c134a3';
+    var red = '#c13346';
+    var range = Math.floor(Math.random()*4);
+    if (range == 1){
+        return orange; 
+    }
+    if (range == 2){
+        return yellow;
+    }
+    if (range == 3){
+        return pink;
+    }
+    else {
+        return red;
+    }
+}
 // This actually draws the frame
 function renderFrame() {
     clearFrame();
@@ -121,9 +147,15 @@ function getPosition(e) {
 	}
 }
 
+function create_new_world(updated_world){
+    world = updated_world;
+    drawNextFrame();
+}
+    
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
+    socket.send(JSON.stringify(world))
     //XXX: Send a XHTML Request that updates the entity you just modified!
 }
 var counter = 0;
@@ -231,15 +263,15 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName({'x':x,'y':y,'colour':'#e0ffff'});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName({'x':x,'y':y,'colour':'#cd8c95'});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
+    addEntityWithoutName({'x':x,'y':y,'colour':pick_random_color(),
                           'radius':10});
 });
 
@@ -249,12 +281,40 @@ function update() {
 }
 
 
+function sendJSONXMLHTTPRequest(url, objects, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState==4) {
+            try {
+                if (xhr.status==200) {
+                    if (callback){
+                    var response = xhr.responseText;
+                    callback(JSON.parse(response));
+                    }
+                }
+            } 
+            catch(e) {
+                alert('Error: ' + e.name);
+            }
+        }
+    };
+    if (objects != null) {
+        xhr.open('POST', url);
+    }
+    else {
+    xhr.open('GET', url);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.send(JSON.stringify(objects));
+}
+}
+
 function wsSetup() {
     var url = "ws://"+host+"/subscribe";   
     socket = new WebSocket(url);
     socket.onopen = function() {
-
-        //XXX: TODO What are you going to do here?
+        sendJSONXMLHTTPRequest("/world", null, create_new_world);
+        drawFrame();
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
@@ -263,6 +323,9 @@ function wsSetup() {
         try {
             debug("WebSocket Recv:" + msg.data);
             var message = JSON.parse(msg.data);
+            world = message
+            drawNextFrame()
+
             //XXX: TODO What are you going to do here?            
         } catch (e) {
             alert("socket on message: " + e);
@@ -279,6 +342,6 @@ wsSetup();
 setInterval( update, 1000/30.0);
 
 
-    </script>
+</script>
 </body>
 </html>
