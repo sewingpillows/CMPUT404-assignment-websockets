@@ -35,6 +35,8 @@ class World:
     def add_set_listener(self, listener):
         self.listeners.append( listener )
 
+
+
     def update(self, entity, key, value):
         entry = self.space.get(entity,dict())
         entry[key] = value
@@ -58,6 +60,20 @@ class World:
     
     def world(self):
         return self.space
+
+##create clients
+## sourced from class notes
+##  https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py 
+class Client:
+    def __init__(self):
+        self.queue = queue.Queue()
+
+    def put(self, v):
+        self.queue.put_nowait(v)
+
+    def get(self):
+        return self.queue.get()
+
 
 myWorld = World()        
 
@@ -89,8 +105,8 @@ def read_ws(ws,client):
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
     client = Client()
-    clients.append(client)
-    g = gevent.spawn( read_ws, ws, client )    
+    myWorld.add_set_listener(client)
+    g = gevent.spawn( read_ws, ws, client)    
     try:
         while True:
             # block here
@@ -99,7 +115,7 @@ def subscribe_socket(ws):
     except Exception as e:# WebSocketError as e:
         print ("WS Error ", e)
     finally:
-        clients.remove(client)
+        myWorld.listeners.remove(client)
         gevent.kill(g)
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''

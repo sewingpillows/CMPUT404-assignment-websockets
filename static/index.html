@@ -253,7 +253,7 @@ function wsSetup() {
     var url = "ws://"+host+"/subscribe";   
     socket = new WebSocket(url);
     socket.onopen = function() {
-        
+
         //XXX: TODO What are you going to do here?
     };
     socket.onerror = function(msg) {
@@ -262,6 +262,7 @@ function wsSetup() {
     socket.onmessage = function(msg) {  
         try {
             debug("WebSocket Recv:" + msg.data);
+            var message = JSON.parse(msg.data);
             //XXX: TODO What are you going to do here?            
         } catch (e) {
             alert("socket on message: " + e);
