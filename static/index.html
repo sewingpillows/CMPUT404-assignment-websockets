@@ -47,7 +47,7 @@ function debug(str) {
 
 world = {};
 
-//XXX: TODO Make this prettier!
+
 function drawCircle(context,entity) {
     with(context) {
         beginPath();                
@@ -85,19 +85,20 @@ function clearFrame() {
 
 }
 
+//picks color at random from predefined set
 function pick_random_color(){
     var orange = '#f47142';
     var yellow = '#f4cd41';
     var pink = '#c134a3';
     var red = '#c13346';
     var range = Math.floor(Math.random()*4);
-    if (range == 1){
+    if (range == 0){
         return orange; 
     }
-    if (range == 2){
+    if (range == 1){
         return yellow;
     }
-    if (range == 3){
+    if (range == 2){
         return pink;
     }
     else {
@@ -147,6 +148,8 @@ function getPosition(e) {
 	}
 }
 
+//pulled from Assignment 4
+// https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/static/index.html
 function create_new_world(updated_world){
     world = updated_world;
     drawNextFrame();
@@ -280,7 +283,8 @@ function update() {
     drawFrame();
 }
 
-
+//pulled from Assignment 4
+// https://github.com/sewingpillows/CMPUT404-assignment-ajax/blob/master/static/index.html
 function sendJSONXMLHTTPRequest(url, objects, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
@@ -309,7 +313,6 @@ function wsSetup() {
     socket = new WebSocket(url);
     socket.onopen = function() {
         sendJSONXMLHTTPRequest("/world", null, create_new_world);
-        drawFrame();
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
