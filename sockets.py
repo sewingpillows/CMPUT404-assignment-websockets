@@ -68,19 +68,41 @@ myWorld.add_set_listener( set_listener )
         
 @app.route('/')
 def hello():
-    '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+     return flask.redirect("/static/index.html")
 
+## https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py ##
 def read_ws(ws,client):
+    try:
+        while True:
+            msg = ws.receive()
+            print ("WS RECV: ", msg)
+            if (msg is not None):
+                packet = json.loads(msg)
+                json.dumps(packet) 
+            else:
+                break
+    except:
+        '''Done'''
     '''A greenlet function that reads from the websocket and updates the world'''
-    # XXX: TODO IMPLEMENT ME
-    return None
+
 
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
+    client = Client()
+    clients.append(client)
+    g = gevent.spawn( read_ws, ws, client )    
+    try:
+        while True:
+            # block here
+            msg = client.get()
+            ws.send(msg)
+    except Exception as e:# WebSocketError as e:
+        print ("WS Error ", e)
+    finally:
+        clients.remove(client)
+        gevent.kill(g)
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
-    # XXX: TODO IMPLEMENT ME
     return None
 
 
@@ -103,6 +125,7 @@ def update(entity):
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
+
     '''you should probably return the world here'''
     return None
 
@@ -114,9 +137,7 @@ def get_entity(entity):
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
-    '''Clear the world out!'''
-    return None
-
+    myWorld.clear()
 
 
 if __name__ == "__main__":
