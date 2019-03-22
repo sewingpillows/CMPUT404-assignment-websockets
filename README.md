@@ -16,10 +16,19 @@ pip install ws4py
 
 pip install gunicorn
 
+
+Create a glowing orbs!<br>
+
+![My image](https://raw.githubusercontent.com/sewingpillows/CMPUT404-assignment-websockets/master/color_orbs.png)
+
 Contributors / Licensing
 ========================
 
-Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
+
+Generally everything is LICENSE'D under the Apache 2 license by Allison Boukall, based on the codebase from
+Sylvain Hellegouarch, Abram Hindle, and Mark Galloway
+<br>
+
 
 freetests.py is LICENSE'D under a BSD-like license:
 
